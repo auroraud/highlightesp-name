@@ -1,0 +1,73 @@
+-- Function to add highlight to a player's character
+local function addHighlight(player)
+    local character = player.Character
+    if character then
+        Instance.new("Highlight", character)
+    end
+end
+
+-- Function to check for new players and add highlight
+local function checkForNewPlayers()
+    for _, player in ipairs(game.Players:GetChildren()) do
+        addHighlight(player)
+    end
+end
+
+-- Add highlight to existing players
+checkForNewPlayers()
+
+-- Listen for new players and add highlight when they join
+game.Players.PlayerAdded:Connect(addHighlight)
+
+-- ESP Settings
+local esp_settings = {
+    textsize = 8,
+    colour = Color3.fromRGB(255, 255, 255)
+}
+
+-- ESP Billboard GUI
+local gui = Instance.new("BillboardGui")
+gui.Name = "Cracked esp"
+gui.ResetOnSpawn = false
+gui.AlwaysOnTop = true
+gui.LightInfluence = 0
+gui.Size = UDim2.new(1.75, 0, 1.75, 0)
+
+-- ESP Text Label
+local esp = Instance.new("TextLabel", gui)
+esp.Text = ""
+esp.Size = UDim2.new(0.0001, 0.00001, 0.0001, 0.00001)
+esp.BorderSizePixel = 4
+esp.BorderColor3 = esp_settings.colour
+esp.BorderSizePixel = 0
+esp.Font = "GothamSemibold"
+esp.TextSize = esp_settings.textsize
+esp.TextColor3 = esp_settings.colour
+
+-- ESP Rendering
+game:GetService("RunService").RenderStepped:Connect(function()
+    for _, player in ipairs(game:GetService("Players"):GetPlayers()) do
+        if player ~= game:GetService("Players").LocalPlayer and player.Character and player.Character:FindFirstChild("Head") and not player.Character.Head:FindFirstChild("Cracked esp") then
+            esp.Text = "{" .. player.Name .. "}"
+            gui:Clone().Parent = player.Character.Head
+        end
+    end
+end)
+
+-- Create a BindableEvent to trigger the player check periodically
+local checkEvent = Instance.new("BindableEvent")
+local interval = 10 -- Adjust the interval as needed
+
+-- Function to periodically check for new players
+local function periodicCheck()
+    while true do
+        wait(interval)
+        checkForNewPlayers()
+    end
+end
+
+-- Connect the function to the BindableEvent's event
+checkEvent.Event:Connect(periodicCheck)
+
+-- Start the periodic checking process
+checkEvent:Fire()
